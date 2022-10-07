@@ -1,0 +1,30 @@
+{
+  "name": "mythmatic-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.8.4"
+  },
+  "scripts": {
+    "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/index.ts",
+    "generate": "ts-node --transpile-only src/schema.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marklubin/mythmatic.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marklubin/mythmatic/issues"
+  },
+  "homepage": "https://github.com/marklubin/mythmatic#readme",
+  "dependencies": {
+    "apollo-server": "^3.10.2",
+    "graphql": "^15.8.0",
+    "nexus": "^1.3.0"
+  }
+}
