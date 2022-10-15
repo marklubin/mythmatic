@@ -1,7 +1,7 @@
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { APP_SECRET } from "../utils/auth";
-import { Resolvers } from "../generated/graphql";
+import { Resolvers } from "mythmatic-graphql-schema";
 
 export const authResolvers: Resolvers = {
   Mutation: {

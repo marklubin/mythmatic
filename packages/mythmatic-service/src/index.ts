@@ -1,21 +1,15 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer } from "apollo-server";
 import { context } from "./context";
-import { loadSchema } from "@graphql-tools/load";
-import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
 import { mergeResolvers } from "@graphql-tools/merge";
 import { addResolversToSchema } from "@graphql-tools/schema";
-import { join } from "path";
 import Resolvers from "./resolvers";
+import { MythmaticSchema } from "mythmatic-graphql-schema";
 
 async function main() {
-  const schema = await loadSchema(join(process.cwd(), "schema.graphql"), {
-    loaders: [new GraphQLFileLoader()],
-  });
-
   const mergedResolvers = mergeResolvers(Resolvers);
 
   const schemaWithResolvers = addResolversToSchema({
-    schema,
+    schema: MythmaticSchema,
     resolvers: mergedResolvers,
   });
 

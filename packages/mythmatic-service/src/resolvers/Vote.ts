@@ -1,4 +1,4 @@
-import { Resolvers } from "../generated/graphql";
+import { Resolvers } from "mythmatic-graphql-schema";
 
 export const voteResolvers: Resolvers = {
   Mutation: {

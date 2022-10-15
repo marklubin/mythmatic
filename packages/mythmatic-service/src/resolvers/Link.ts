@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { Resolvers } from "../generated/graphql";
+import { Resolvers } from "mythmatic-graphql-schema";
 
 export const linkResolvers: Resolvers = {
   Query: {

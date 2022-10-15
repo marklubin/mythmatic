@@ -1,0 +1,64 @@
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+scalar DateTime
+
+type Feed {
+  count: Int!
+  id: ID
+  links: [Link!]!
+}
+
+type Link {
+  createdAt: DateTime!
+  description: String!
+  id: Int!
+  postedBy: User
+  url: String!
+  voters: [User!]!
+}
+
+input LinkOrderByInput {
+  createdAt: Sort
+  description: Sort
+  url: Sort
+}
+
+type Mutation {
+  deletePost(id: Int!): Boolean!
+  login(email: String!, password: String!): AuthPayload!
+  post(description: String!, url: String!): Link!
+  signup(email: String!, name: String!, password: String!): AuthPayload!
+  updatePost(description: String!, id: Int!, url: String!): Link
+  vote(linkId: Int!): Vote
+}
+
+type Query {
+  feed(
+    filter: String
+    orderBy: [LinkOrderByInput!]
+    skip: Int
+    take: Int
+  ): Feed!
+}
+
+enum Sort {
+  asc
+  desc
+}
+
+type User {
+  Votes: [Link!]!
+  email: String!
+  id: Int!
+  links: [Link!]!
+  name: String!
+  password: String!
+}
+
+type Vote {
+  link: Link!
+  user: User!
+}

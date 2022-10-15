@@ -11,7 +11,8 @@
   "license": "ISC",
   "workspaces": [
     "packages/mythmatic-react",
-    "packages/mythmatic-service"
+    "packages/mythmatic-service",
+    "packages/mythmatic-graphql-schema"
   ],
   "devDependencies": {}
 }
