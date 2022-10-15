@@ -61,7 +61,6 @@ export const Link = objectType({
 });
 
 export const LinkQuery = extendType({
-  // 2
   type: "Query",
   definition(t) {
     t.nonNull.field("feed", {
