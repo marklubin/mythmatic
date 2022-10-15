@@ -12,5 +12,8 @@
   "workspaces": [
     "packages/mythmatic-react",
     "packages/mythmatic-service"
-  ]
+  ],
+  "devDependencies": {
+    "@types/express": "^4.17.14"
+  }
 }

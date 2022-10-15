@@ -1,45 +1,104 @@
-import { extendType, intArg, nonNull, objectType, stringArg } from "nexus";
-import { NexusGenObjects } from "../../nexus-typegen";
+import { Prisma, prisma } from "@prisma/client";
+import {
+  arg,
+  enumType,
+  extendType,
+  inputObjectType,
+  intArg,
+  list,
+  nonNull,
+  objectType,
+  stringArg,
+} from "nexus";
+import { Context } from "../context";
 
+export const Feed = objectType({
+  name: "Feed",
+  definition(t) {
+    t.nonNull.list.nonNull.field("links", { type: Link });
+    t.nonNull.int("count");
+    t.id("id");
+  },
+});
+
+export const Sort = enumType({
+  name: "Sort",
+  members: ["asc", "desc"],
+});
+
+export const LinkOrderByInput = inputObjectType({
+  name: "LinkOrderByInput",
+  definition(t) {
+    t.field("description", { type: Sort });
+    t.field("url", { type: Sort });
+    t.field("createdAt", { type: Sort });
+  },
+});
 export const Link = objectType({
-  name: "Link", // <- Name of your type
+  name: "Link",
   definition(t) {
     t.nonNull.int("id");
     t.nonNull.string("description");
     t.nonNull.string("url");
+    t.nonNull.dateTime("createdAt");
+    t.field("postedBy", {
+      type: "User",
+      resolve(parent, args, context) {
+        return context.prisma.link
+          .findUnique({ where: { id: parent.id } })
+          .postedBy();
+      },
+    });
+    t.nonNull.list.nonNull.field("voters", {
+      type: "User",
+      resolve(parent, args, context) {
+        return context.prisma.link
+          .findUnique({ where: { id: parent.id } })
+          .voters();
+      },
+    });
   },
 });
-
-const links: NexusGenObjects["Link"][] = [
-  // 1
-  {
-    id: 1,
-    url: "www.howtographql.com",
-    description: "Fullstack tutorial for GraphQL",
-  },
-  {
-    id: 2,
-    url: "graphql.org",
-    description: "GraphQL official website",
-  },
-];
-
-const findLink: (id: number) => NexusGenObjects["Link"] | undefined = (
-  id: number
-) => {
-  return links.find((l) => l.id === id);
-};
 
 export const LinkQuery = extendType({
   // 2
   type: "Query",
   definition(t) {
-    t.nonNull.list.nonNull.field("feed", {
-      // 3
-      type: "Link",
-      resolve(parent, args, context, info) {
-        // 4
-        return links;
+    t.nonNull.field("feed", {
+      type: "Feed",
+      args: {
+        filter: stringArg(),
+        skip: intArg(),
+        take: intArg(),
+        orderBy: arg({
+          type: list(nonNull(LinkOrderByInput)),
+        }),
+      },
+      async resolve(parent, args, context: Context, info) {
+        const where = args.filter
+          ? {
+              OR: [
+                { description: { contains: args.filter } },
+                { url: { contains: args.filter } },
+              ],
+            }
+          : {};
+        const links = await context.prisma.link.findMany({
+          where,
+          skip: args?.skip as number | undefined,
+          take: args?.take as number | undefined,
+          orderBy: args.orderBy as
+            | Prisma.Enumerable<Prisma.LinkOrderByWithRelationInput>
+            | undefined,
+        });
+        const count = await context.prisma.link.count({ where });
+        const id = `main-feed:${JSON.stringify(args)}`;
+
+        return {
+          links,
+          count,
+          id,
+        };
       },
     });
   },
@@ -54,19 +113,28 @@ export const LinkMututation = extendType({
         description: nonNull(stringArg()),
         url: nonNull(stringArg()),
       },
-      resolve(parent, args, context) {
+      resolve(parent, args, context: Context) {
         const { description, url } = args;
 
-        let idCount = links.length + 1;
+        const { userId } = context;
 
-        let link = {
-          id: idCount,
-          description: description,
-          url: url,
-        };
+        if (!userId) {
+          throw new Error("Cannot post without logging in.");
+        }
 
-        links.push(link);
-        return link;
+        const newLink = context.prisma.link.create({
+          data: {
+            description: description,
+            url: url,
+            postedBy: {
+              connect: {
+                id: userId,
+              },
+            },
+          },
+        });
+
+        return newLink;
       },
     }),
       t.field("updatePost", {
@@ -76,16 +144,22 @@ export const LinkMututation = extendType({
           url: nonNull(stringArg()),
           id: nonNull(intArg()),
         },
-        resolve(parent, args, context) {
+        resolve(parent, args, context: Context) {
           const { description, url, id } = args;
-          const link = findLink(id);
-
-          if (!link) {
-            return null;
-          }
-          link.description = description;
-          link.url = url;
-          return link;
+          return context.prisma.link
+            .update({
+              where: {
+                id: id,
+              },
+              data: {
+                description: description,
+                url: url,
+              },
+            })
+            .catch((error) => {
+              console.log(error);
+              return null;
+            });
         },
       }),
       t.nonNull.field("deletePost", {
@@ -93,17 +167,22 @@ export const LinkMututation = extendType({
         args: {
           id: nonNull(intArg()),
         },
-        resolve(parent, args, context) {
+        resolve(parent, args, context: Context) {
           const { id } = args;
 
-          const link = findLink(id);
-
-          if (!link) {
-            return false;
-          }
-          const idx = links.indexOf(link);
-          links.splice(idx, 1);
-          return true;
+          return context.prisma.link
+            .delete({
+              where: {
+                id: id,
+              },
+            })
+            .then((v) => {
+              return true;
+            })
+            .catch((error) => {
+              console.log(error);
+              return false;
+            });
         },
       });
   },
