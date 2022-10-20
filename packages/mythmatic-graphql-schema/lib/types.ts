@@ -50,6 +50,7 @@ export type Mutation = {
   login: AuthPayload;
   post: Link;
   signup: AuthPayload;
+  startRenderTask: RenderTask;
   updatePost?: Maybe<Link>;
   vote?: Maybe<Vote>;
 };
@@ -79,6 +80,11 @@ export type MutationSignupArgs = {
 };
 
 
+export type MutationStartRenderTaskArgs = {
+  input: RenderTaskInput;
+};
+
+
 export type MutationUpdatePostArgs = {
   description: Scalars['String'];
   id: Scalars['Int'];
@@ -93,6 +99,7 @@ export type MutationVoteArgs = {
 export type Query = {
   __typename?: 'Query';
   feed: Feed;
+  getRenderTask: RenderTask;
 };
 
 
@@ -102,6 +109,30 @@ export type QueryFeedArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   take?: InputMaybe<Scalars['Int']>;
 };
+
+
+export type QueryGetRenderTaskArgs = {
+  taskId: Scalars['String'];
+};
+
+export type RenderTask = {
+  __typename?: 'RenderTask';
+  errorMessage?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  payloadUrl?: Maybe<Scalars['String']>;
+  status: RenderTaskStatus;
+};
+
+export type RenderTaskInput = {
+  prompt: Scalars['String'];
+};
+
+export enum RenderTaskStatus {
+  Completed = 'Completed',
+  Created = 'Created',
+  Failed = 'Failed',
+  Processing = 'Processing'
+}
 
 export enum Sort {
   Asc = 'asc',
@@ -203,6 +234,9 @@ export type ResolversTypes = {
   LinkOrderByInput: LinkOrderByInput;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  RenderTask: ResolverTypeWrapper<RenderTask>;
+  RenderTaskInput: RenderTaskInput;
+  RenderTaskStatus: RenderTaskStatus;
   Sort: Sort;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<User>;
@@ -221,6 +255,8 @@ export type ResolversParentTypes = {
   LinkOrderByInput: LinkOrderByInput;
   Mutation: {};
   Query: {};
+  RenderTask: RenderTask;
+  RenderTaskInput: RenderTaskInput;
   String: Scalars['String'];
   User: User;
   Vote: Vote;
@@ -258,12 +294,22 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   post?: Resolver<ResolversTypes['Link'], ParentType, ContextType, RequireFields<MutationPostArgs, 'description' | 'url'>>;
   signup?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationSignupArgs, 'email' | 'name' | 'password'>>;
+  startRenderTask?: Resolver<ResolversTypes['RenderTask'], ParentType, ContextType, RequireFields<MutationStartRenderTaskArgs, 'input'>>;
   updatePost?: Resolver<Maybe<ResolversTypes['Link']>, ParentType, ContextType, RequireFields<MutationUpdatePostArgs, 'description' | 'id' | 'url'>>;
   vote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<MutationVoteArgs, 'linkId'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   feed?: Resolver<ResolversTypes['Feed'], ParentType, ContextType, Partial<QueryFeedArgs>>;
+  getRenderTask?: Resolver<ResolversTypes['RenderTask'], ParentType, ContextType, RequireFields<QueryGetRenderTaskArgs, 'taskId'>>;
+};
+
+export type RenderTaskResolvers<ContextType = any, ParentType extends ResolversParentTypes['RenderTask'] = ResolversParentTypes['RenderTask']> = {
+  errorMessage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  payloadUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['RenderTaskStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -289,6 +335,7 @@ export type Resolvers<ContextType = any> = {
   Link?: LinkResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RenderTask?: RenderTaskResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   Vote?: VoteResolvers<ContextType>;
 };

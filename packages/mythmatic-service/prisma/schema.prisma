@@ -25,3 +25,13 @@ model User {
   links Link[] @relation(name: "PostedBy")
   votes Link[] @relation(name: "Votes")
 }
+
+model RenderTask {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  prompt String
+  externalGenerator String @default("REPLICATE")
+  externalGenerationId String
+  status String
+  payloadUrl String?
+}
