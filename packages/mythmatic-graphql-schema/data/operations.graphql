@@ -1,0 +1,15 @@
+mutation StartRenderTask($input: RenderTaskInput!) {
+  startRenderTask(input: $input) {
+    id
+    status
+  }
+}
+
+query GetRenderTask($taskId: String!) {
+  getRenderTask(taskId: $taskId) {
+    id
+    status
+    payloadUrl
+    errorMessage
+  }
+}

@@ -8,9 +8,15 @@ const config: CodegenConfig = {
       DateTime: "Date",
     },
   },
+  documents: ["./data/operations.graphql"],
   generates: {
-    "lib/types.ts": {
-      plugins: ["typescript", "typescript-resolvers"],
+    "lib/generated.ts": {
+      plugins: [
+        "typescript",
+        "typescript-resolvers",
+        "typescript-operations",
+        "typescript-react-apollo",
+      ],
     },
   },
 };
