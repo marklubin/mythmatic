@@ -21,9 +21,15 @@ const MODEL_DEFAULT_INPUT = {
   height: 256 as ImageDimension,
   prompt_strength: 0.8,
   num_outputs: 1,
-  num_inference_steps: 25,
+  num_inference_steps: 250,
   guidance_scale: 7.5,
 };
+
+function isTerminalStatus(status: string) {
+  return (
+    status === RenderTaskStatus.Completed || status === RenderTaskStatus.Failed
+  );
+}
 
 export const renderTaskResolvers: Resolvers = {
   Mutation: {
@@ -49,6 +55,54 @@ export const renderTaskResolvers: Resolvers = {
           status: RenderTaskStatus.Created,
         },
       });
+    },
+  },
+  Query: {
+    getRenderTask: async (parent, args, context: Context) => {
+      const task = await context.prisma.renderTask.findUnique({
+        where: {
+          id: args.taskId,
+        },
+      });
+
+      if (!task) {
+        throw new Error(`No task found for ${args.taskId}.`);
+      }
+
+      if (isTerminalStatus(task.status)) {
+        return task;
+      }
+
+      const prediction = await context.replicateClient.getPrediction(
+        task.externalGenerationId
+      );
+
+      if (prediction.status === "failed") {
+        return context.prisma.renderTask.update({
+          where: {
+            id: args.taskId,
+          },
+          data: {
+            status: RenderTaskStatus.Failed,
+          },
+        });
+      }
+
+      if (prediction.status === "succeeded") {
+        return context.prisma.renderTask.update({
+          where: {
+            id: args.taskId,
+          },
+          data: {
+            status: RenderTaskStatus.Completed,
+            payloadUrl: prediction.output[0], //only supports single prediction per task for now
+          },
+        });
+      }
+
+      console.log("Queried Replicate for update by task is still pending.");
+
+      return task;
     },
   },
 };
