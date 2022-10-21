@@ -1,8 +1,11 @@
 import { Button, Grid, TextField } from "@mui/material";
+import { useStartRenderTaskMutation } from "mythmatic-graphql-schema";
 import { useState } from "react";
 
 export default function StableDiffusionTextPrompt() {
   const [prompt, setPrompt] = useState("");
+
+  const [startRenderTask, { data, loading, error }] = useStartRenderTaskMutation();
 
   const handlePromptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPrompt(event.target.value);
@@ -10,7 +13,16 @@ export default function StableDiffusionTextPrompt() {
 
   const handleCreateEvent = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (prompt && prompt.length > 0) {
-      alert(`Your prompt is: ${prompt}`);
+      startRenderTask({
+        onCompleted: (data) => {
+          console.log(`Received Data: ${JSON.stringify(data)}.`);
+        },
+        variables: {
+          input: {
+            prompt,
+          },
+        },
+      });
     }
   };
 

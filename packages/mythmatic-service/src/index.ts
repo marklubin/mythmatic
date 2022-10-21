@@ -3,10 +3,16 @@ import { context } from "./context";
 import { mergeResolvers } from "@graphql-tools/merge";
 import { addResolversToSchema } from "@graphql-tools/schema";
 import Resolvers from "./resolvers";
-import { MythmaticSchema } from "mythmatic-graphql-schema";
+import { schemaFilePath } from "mythmatic-graphql-schema";
+import { loadSchemaSync } from "@graphql-tools/load";
+import { GraphQLFileLoader } from "@graphql-tools/graphql-file-loader";
 
 async function main() {
   const mergedResolvers = mergeResolvers(Resolvers);
+
+  const MythmaticSchema = loadSchemaSync(schemaFilePath, {
+    loaders: [new GraphQLFileLoader()],
+  });
 
   const schemaWithResolvers = addResolversToSchema({
     schema: MythmaticSchema,
