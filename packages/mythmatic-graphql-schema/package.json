@@ -2,20 +2,22 @@
   "name": "mythmatic-graphql-schema",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/index.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "devDependencies": {
     "@graphql-codegen/cli": "2.13.7",
     "@graphql-codegen/introspection": "2.2.1",
     "@graphql-codegen/typescript": "2.7.4",
-    "@graphql-codegen/typescript-resolvers": "^2.7.4",
     "@graphql-codegen/typescript-operations": "^2.5.5",
     "@graphql-codegen/typescript-react-apollo": "^3.3.5",
-    "@types/node": "^18.11.0"
+    "@graphql-codegen/typescript-resolvers": "^2.7.4",
+    "@types/node": "^18.11.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "codegen": "graphql-codegen --config codegen.ts",
-    "install": "npm run codegen"
+    "build": "npm run codegen && tsc --build",
+    "clean": "rm src/generated.ts src/*.js src/*.js.map"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,5 @@
   "bugs": {
     "url": "https://github.com/marklubin/mythmatic/issues"
   },
-  "homepage": "https://github.com/marklubin/mythmatic#readme",
-  "dependencies": {}
+  "homepage": "https://github.com/marklubin/mythmatic#readme"
 }

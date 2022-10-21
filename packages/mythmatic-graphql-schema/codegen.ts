@@ -10,13 +10,8 @@ const config: CodegenConfig = {
   },
   documents: ["./data/operations.graphql"],
   generates: {
-    "lib/generated.ts": {
-      plugins: [
-        "typescript",
-        "typescript-resolvers",
-        "typescript-operations",
-        "typescript-react-apollo",
-      ],
+    "src/generated.ts": {
+      plugins: ["typescript", "typescript-resolvers", "typescript-operations", "typescript-react-apollo"],
     },
   },
 };
