@@ -8,19 +8,30 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+  },
+});
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
+  uri: "http://localhost:8080",
 });
 
 root.render(
   <React.StrictMode>
     <ApolloProvider client={apolloClient}>
-      <App />
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline>
+          <App />
+        </CssBaseline>
+      </ThemeProvider>
     </ApolloProvider>
   </React.StrictMode>
 );

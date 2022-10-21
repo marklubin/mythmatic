@@ -17,36 +17,29 @@ const STABLE_DIFFUSION_MODEL_NAME = "stability-ai/stable-diffusion";
 
 //Eventually this will be customized by the type of model and be part of graphql schema as well
 const MODEL_DEFAULT_INPUT = {
-  width: 256 as ImageDimension,
-  height: 256 as ImageDimension,
+  width: 512 as ImageDimension,
+  height: 512 as ImageDimension,
   prompt_strength: 0.8,
   num_outputs: 1,
-  num_inference_steps: 250,
+  num_inference_steps: 50,
   guidance_scale: 7.5,
 };
 
 function isTerminalStatus(status: string) {
-  return (
-    status === RenderTaskStatus.Completed || status === RenderTaskStatus.Failed
-  );
+  return status === RenderTaskStatus.Completed || status === RenderTaskStatus.Failed;
 }
 
 export const renderTaskResolvers: Resolvers = {
   Mutation: {
     startRenderTask: async (parents, args, context: Context) => {
-      const model = await context.replicateClient.getModel(
-        STABLE_DIFFUSION_MODEL_NAME
-      );
+      const model = await context.replicateClient.getModel(STABLE_DIFFUSION_MODEL_NAME);
 
       const input: StableDiffusionModelInput = {
         prompt: args.input.prompt,
         ...MODEL_DEFAULT_INPUT,
       };
 
-      const prediction = await context.replicateClient.createPrediction(
-        model.latest_version.id,
-        input
-      );
+      const prediction = await context.replicateClient.createPrediction(model.latest_version.id, input);
 
       return context.prisma.renderTask.create({
         data: {
@@ -73,9 +66,7 @@ export const renderTaskResolvers: Resolvers = {
         return task;
       }
 
-      const prediction = await context.replicateClient.getPrediction(
-        task.externalGenerationId
-      );
+      const prediction = await context.replicateClient.getPrediction(task.externalGenerationId);
 
       if (prediction.status === "failed") {
         return context.prisma.renderTask.update({
